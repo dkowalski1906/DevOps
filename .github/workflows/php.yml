@@ -1,22 +1,40 @@
 name: PHP PHPUnit Test
+
 on: 
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   phpunit:
     runs-on: ubuntu-latest
     steps:
+      # Étape 1 : Récupérer le code
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Étape 2 : Configurer PHP avec Xdebug
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
+          extensions: xdebug
+          ini-values: |
+            xdebug.mode=debug
+            xdebug.start_with_request=yes
+            xdebug.client_host=host.docker.internal  # Permet de se connecter à Xdebug à partir du conteneur
+            xdebug.client_port=9003                # Port pour écouter les connexions de débogage
+            xdebug.log=/tmp/xdebug.log             # Fichier de log pour Xdebug
 
+      # Étape 3 : Installer les dépendances avec Composer
       - name: Install dependencies
-        run: composer install
+        run: composer install --no-progress --prefer-dist
 
-      - name: Run PHPUnit tests
-        run: vendor/bin/phpunit --testdox tests
+      # Étape 4 : Exécuter les tests avec débogage activé
+      - name: Run PHPUnit tests with debug
+        run: vendor/bin/phpunit --testdox --debug
+        env:
+          XDEBUG_MODE: debug  # Active le débogage Xdebug

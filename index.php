@@ -1,5 +1,10 @@
 <?php
 require( 'Money.php');
-$money = new Money(42, 'EUR');
-echo $money;
+require( 'Personne.php');
+require( 'CompteBancaire.php');
+
+$personne = new Personne("Kowalski", "Damien", "adresse");
+$compte = new CompteBancaire(1234, $personne, 1000);
+echo $personne;
+echo $compte;
 ?>
